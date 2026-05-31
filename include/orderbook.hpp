@@ -50,4 +50,14 @@ struct OrderBook {
         if (bids.empty() || asks.empty()) return 0.0;
         return asks.begin()->first - bids.begin()->first;
     }
+
+    // Clear all data (call before switching symbol)
+    void reset() {
+        std::lock_guard<std::mutex> lk(mtx);
+        bids.clear();
+        asks.clear();
+        connected      = false;
+        snapshot_ready = false;
+        last_update_ms = 0;
+    }
 };

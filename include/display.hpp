@@ -153,7 +153,8 @@ public:
         printf("%s", ansi::SHOW_CURSOR);
     }
 
-    void render(const std::vector<OrderBook*>& books, int depth = 15) {
+    void render(const std::vector<OrderBook*>& books, int depth,
+                const std::string& coin = "BTC") {
         std::vector<std::vector<std::string>> cols;
         for (auto* b : books)
             cols.push_back(render_book(*b, depth));
@@ -164,10 +165,23 @@ public:
         std::ostringstream out;
         out << ansi::CLEAR;
 
+        // Build dynamic title, padded to fixed width
+        std::string pair = coin + "/USDT";
+        std::string title_core = "CRYPTO ORDERBOOK VISUALIZER  [ " + pair + " ]  -  Binance / OKX / Bybit";
+        // Total inner width = 84 chars
+        const int INNER = 84;
+        int pad = INNER - static_cast<int>(title_core.size());
+        int lpad = (std::max)(0, pad / 2);
+        int rpad = (std::max)(0, pad - lpad);
+        std::string title_line = "  |" + std::string(lpad, ' ') + title_core
+                               + std::string(rpad, ' ') + "|";
+
         out << ansi::BOLD << ansi::WHITE
-            << "  +====================================================================================+\n"
-            << "  |        CRYPTO ORDERBOOK VISUALIZER  [ BTC/USDT ]  -  Binance / OKX / Bybit       |\n"
-            << "  +====================================================================================+\n"
+            << "  +======================================================================================"
+               "==+\n"
+            << title_line << "\n"
+            << "  +======================================================================================"
+               "==+\n"
             << ansi::RESET << "\n";
 
         for (size_t r = 0; r < max_rows; r++) {
@@ -181,7 +195,7 @@ public:
         }
 
         out << "\n" << ansi::GRAY
-            << "  Ctrl+C to exit  |  Depth: " << depth
+            << "  [S] switch symbol  |  Ctrl+C to exit  |  Depth: " << depth
             << "  |  Refresh: 100ms  |  WinHTTP WSS"
             << ansi::RESET << "\n";
 
